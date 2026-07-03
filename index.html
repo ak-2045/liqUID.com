@@ -1,0 +1,2090 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>liqUID.com</title>
+    <link rel="icon" type="image/png"
+        href="https://static.vecteezy.com/system/resources/previews/068/015/971/non_2x/hyperliquid-coin-crypto-3d-illustration-free-png.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-primary: #000000;
+            --bg-secondary: #05050a;
+            --bg-tertiary: #0b0c10;
+            --accent-primary: #00ff66;
+            --accent-secondary: #00f0ff;
+            --accent-tertiary: #ff007f;
+            --danger: #ff0055;
+            --warning: #ffaa00;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #475569;
+            --border-primary: rgba(0, 255, 102, 0.15);
+            --border-focus: rgba(0, 240, 255, 0.6);
+            --card-glass: rgba(5, 5, 10, 0.85);
+            --sidebar-width: 280px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        #matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            opacity: 0.12;
+            pointer-events: none;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #1f2937;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-primary);
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        .cyber-mono {
+            font-family: 'Share Tech Mono', monospace;
+            text-transform: uppercase;
+        }
+
+        .app-container {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+            z-index: 2;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--bg-secondary);
+            border-right: 1px solid var(--border-primary);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            z-index: 10;
+            box-shadow: 5px 0 25px rgba(0, 255, 102, 0.03);
+        }
+
+        .sidebar-brand {
+            padding: 30px 24px;
+            border-bottom: 1px solid var(--border-primary);
+            text-align: center;
+        }
+
+        .sidebar-brand h1 {
+            font-size: 2.2rem;
+            font-family: 'Share Tech Mono', monospace;
+            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 4px;
+            text-shadow: 0 0 10px rgba(0, 255, 102, 0.4);
+        }
+
+        .sidebar-brand p {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .sidebar-menu {
+            flex: 1;
+            padding: 24px 16px;
+            overflow-y: auto;
+        }
+
+        .menu-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            margin: 20px 0 8px 12px;
+            font-weight: 700;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            transition: all 0.25s ease;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        .menu-item:hover {
+            color: var(--accent-primary);
+            background-color: rgba(0, 255, 102, 0.03);
+            border-color: rgba(0, 255, 102, 0.1);
+        }
+
+        .menu-item.active {
+            color: var(--accent-primary);
+            background: linear-gradient(135deg, rgba(0, 255, 102, 0.1) 0%, rgba(0, 240, 255, 0.02) 100%);
+            border: 1px solid var(--border-primary);
+            box-shadow: 0 0 15px rgba(0, 255, 102, 0.1);
+        }
+
+        .menu-item i {
+            margin-right: 12px;
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-wallet {
+            padding: 20px;
+            border-top: 1px solid var(--border-primary);
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+
+        .wallet-status {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+        }
+
+        .wallet-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-primary);
+            border-radius: 50%;
+            margin-right: 6px;
+            box-shadow: 0 0 8px var(--accent-primary);
+        }
+
+        .wallet-addr {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            background: rgba(0, 0, 0, 0.5);
+            padding: 6px;
+            border-radius: 6px;
+            border: 1px solid var(--border-primary);
+            width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: block;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .top-navbar {
+            height: 70px;
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-primary);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            flex-shrink: 0;
+        }
+
+        .nav-title {
+            font-size: 1.25rem;
+            font-family: 'Share Tech Mono', monospace;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--accent-primary);
+        }
+
+        .demo-badge {
+            background: rgba(0, 240, 255, 0.05);
+            border: 1px solid var(--border-focus);
+            color: var(--accent-secondary);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 0 8px rgba(0, 240, 255, 0.2);
+            position: relative;
+            cursor: help;
+        }
+
+        .demo-badge .tooltip-content {
+            visibility: hidden;
+            width: 320px;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--accent-secondary);
+            color: var(--text-primary);
+            text-align: justify;
+            border-radius: 8px;
+            padding: 16px;
+            position: absolute;
+            z-index: 100;
+            top: 125%;
+            right: 0;
+            opacity: 0;
+            transition: opacity 0.3s;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+        }
+
+        .demo-badge:hover .tooltip-content {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .tooltip-content h4 {
+            color: var(--accent-secondary);
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .tooltip-content p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+
+        .view-panel {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .view-panel.active {
+            display: block;
+        }
+
+        .glass-card {
+            background-color: var(--card-glass);
+            border: 1px solid var(--border-primary);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 20px rgba(0, 255, 102, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-box {
+            background: rgba(5, 5, 10, 0.9);
+            border: 1px solid var(--border-primary);
+            border-radius: 12px;
+            padding: 20px;
+            transition: border-color 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .stat-box:hover {
+            border-color: var(--accent-secondary);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.1);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .stat-val {
+            font-size: 1.6rem;
+            font-weight: 700;
+            font-family: 'Share Tech Mono', monospace;
+            color: var(--text-primary);
+        }
+
+        .stat-delta {
+            font-size: 0.8rem;
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+            gap: 4px;
+        }
+
+        .delta-up {
+            color: var(--accent-tertiary);
+        }
+
+        .delta-down {
+            color: var(--danger);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .form-control {
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--border-primary);
+            border-radius: 8px;
+            padding: 12px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.25s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--accent-secondary);
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+            color: black;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 0 15px rgba(0, 255, 102, 0.2);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Share Tech Mono', monospace;
+            text-transform: uppercase;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.4);
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            width: 100%;
+        }
+
+        .custom-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .custom-table th {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-primary);
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .custom-table td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-primary);
+            font-size: 0.9rem;
+            vertical-align: middle;
+        }
+
+        .custom-table tr:hover {
+            background-color: rgba(0, 255, 102, 0.01);
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: inline-block;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .badge-minted {
+            background: rgba(0, 240, 255, 0.1);
+            color: var(--accent-secondary);
+            border: 1px solid var(--accent-secondary);
+        }
+
+        .badge-active {
+            background: rgba(0, 255, 102, 0.1);
+            color: var(--accent-primary);
+            border: 1px solid var(--accent-primary);
+        }
+
+        .badge-auction {
+            background: rgba(255, 170, 0, 0.1);
+            color: var(--warning);
+            border: 1px solid var(--warning);
+        }
+
+        .badge-liquidated {
+            background: rgba(255, 0, 85, 0.1);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+
+        .badge-repaid {
+            background: rgba(150, 150, 150, 0.1);
+            color: var(--text-secondary);
+            border: 1px solid var(--text-secondary);
+        }
+
+        .justify-text {
+            text-align: justify;
+        }
+
+        .guide-step {
+            margin-bottom: 30px;
+            border-left: 3px solid var(--accent-primary);
+            padding-left: 20px;
+        }
+
+        .guide-step h3 {
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .code-block {
+            background-color: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--border-primary);
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85rem;
+            color: var(--accent-secondary);
+            margin: 12px 0;
+            position: relative;
+            overflow-x: auto;
+        }
+
+        .code-block::after {
+            content: "SHELL";
+            position: absolute;
+            top: 4px;
+            right: 8px;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            font-weight: 700;
+        }
+
+        .asset-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .asset-card {
+            background-color: rgba(0, 0, 0, 0.8);
+            border: 1px solid var(--border-primary);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.25s ease;
+        }
+
+        .asset-card:hover {
+            border-color: var(--accent-primary);
+            transform: translateY(-2px);
+        }
+
+        .asset-img {
+            height: 160px;
+            width: 100%;
+            object-fit: cover;
+            background-color: var(--bg-tertiary);
+        }
+
+        .asset-body {
+            padding: 20px;
+        }
+
+        .asset-title {
+            font-size: 1.1rem;
+            margin-bottom: 6px;
+            color: var(--text-primary);
+        }
+
+        .asset-meta {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .asset-val {
+            font-size: 1.2rem;
+            color: var(--accent-secondary);
+            font-weight: bold;
+            margin-bottom: 14px;
+        }
+
+        .auction-progress-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            overflow: hidden;
+            height: 6px;
+            margin: 12px 0;
+        }
+
+        .auction-progress-bar {
+            background: linear-gradient(90deg, var(--warning) 0%, var(--danger) 100%);
+            height: 100%;
+            border-radius: 4px;
+            width: 100%;
+            transition: width 1s linear;
+        }
+
+        .ledger-box {
+            background-color: rgba(0, 0, 0, 0.7);
+            border: 1px solid var(--border-primary);
+            border-radius: 12px;
+            padding: 16px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--accent-primary);
+            height: 150px;
+            overflow-y: auto;
+            margin-top: 15px;
+            box-shadow: inset 0 0 10px rgba(0, 255, 102, 0.2);
+        }
+
+        .ledger-line {
+            margin-bottom: 6px;
+            border-bottom: 1px solid rgba(0, 255, 102, 0.05);
+            padding-bottom: 4px;
+        }
+
+        .sim-overlay {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 255, 102, 0.95);
+            color: black;
+            padding: 16px 32px;
+            border-radius: 30px;
+            font-weight: bold;
+            z-index: 100;
+            display: none;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 0 30px rgba(0, 255, 102, 0.6);
+            font-size: 1.1rem;
+            font-family: 'Share Tech Mono', monospace;
+        }
+    </style>
+</head>
+
+<body>
+
+    <canvas id="matrix-bg"></canvas>
+
+    <div class="sim-overlay" id="walkthrough-overlay">
+        <i data-lucide="play-circle"></i> <span id="walkthrough-text">Initialising Auto-Simulation Walkthrough...</span>
+    </div>
+
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="sidebar-brand" style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                <div style="display: flex; align-items: center; gap: 10px; justify-content: center;">
+                    <img src="https://static.vecteezy.com/system/resources/previews/068/015/971/non_2x/hyperliquid-coin-crypto-3d-illustration-free-png.png"
+                        alt="liqUID Logo"
+                        style="width: 32px; height: 32px; object-fit: contain; filter: drop-shadow(0 0 8px rgba(0, 255, 102, 0.4));">
+                    <h1 style="margin: 0;">liqUID</h1>
+                </div>
+                <p class="cyber-mono">RWA Lending Protocol</p>
+            </div>
+
+            <nav class="sidebar-menu">
+
+                <div class="menu-label" style="margin-top:18px; margin-bottom:14px;">
+                    LIVE PROTOCOL DEMONSTRATION
+                </div>
+
+                <div class="menu-item active" onclick="switchView('panel-portal')">
+                    <i data-lucide="home"></i>&nbsp;Executive Overview
+                </div>
+
+                <div class="menu-item" onclick="switchView('panel-dashboard')">
+                    <i data-lucide="layout-dashboard"></i>&nbsp;Protocol Dashboard
+                </div>
+
+                <div class="menu-item" onclick="switchView('panel-mint')">
+                    <i data-lucide="coins"></i>&nbsp;RWA Tokenization
+                </div>
+
+                <div class="menu-item" onclick="switchView('panel-borrow')">
+                    <i data-lucide="wallet"></i>&nbsp;Lending Operations
+                </div>
+
+                <div class="menu-item" onclick="switchView('panel-repay')">
+                    <i data-lucide="credit-card"></i>&nbsp;Debt Servicing
+                </div>
+
+                <div class="menu-item" onclick="switchView('panel-oracle')">
+                    <i data-lucide="satellite"></i>&nbsp;Oracle Intelligence
+                </div>
+
+                <div class="menu-item" onclick="switchView('panel-auctions')">
+                    <i data-lucide="gavel"></i>&nbsp;Liquidation Engine
+                </div>
+
+                <div class="menu-item" onclick="switchView('panel-borrowers')">
+                    <i data-lucide="users"></i>&nbsp;Borrower Registry
+                </div>
+
+                <div class="menu-item" onclick="switchView('panel-faucet')">
+                    <i data-lucide="droplet"></i>&nbsp;Liquidity Faucet
+                </div>
+
+                <div class="menu-item" onclick="switchView('panel-analytics')">
+                    <i data-lucide="pie-chart"></i>&nbsp;Risk Analytics
+                </div>
+
+                <div class="menu-item" onclick="switchView('panel-admin')">
+                    <i data-lucide="sliders"></i>&nbsp;Protocol Administration
+                </div>
+
+                <div class="menu-label" style="margin-top:22px; margin-bottom:14px;">
+                    &nbsp;DEVELOPER RESOURCES
+                </div>
+
+                <div class="menu-item" onclick="switchView('panel-guide')">
+                    <i data-lucide="book-open"></i>&nbsp;Deployment Guide
+                </div>
+
+            </nav>
+
+            <div class="sidebar-wallet">
+                <div class="wallet-status">
+                    <span>Account Status</span>
+                    <span><span class="wallet-indicator"></span>Online</span>
+                </div>
+                <span class="wallet-addr">0xac0974bec39a17e36ba4a6b4d238ff944bacb...</span>
+            </div>
+        </aside>
+        <main class="main-content">
+            <header class="top-navbar">
+                <div class="nav-title" id="nav-header-title"> Executive Overview </div>
+                <div class="demo-badge">
+                    <i data-lucide="info"></i> Interactive Sandboxed Demo Mode
+                    <div class="tooltip-content">
+                        <h4>Protocol Sandbox Info</h4>
+                        <p>This is a simulated browser demo. It runs in-memory JavaScript state variables to preview the
+                            core functionalities of liqUID.com.</p>
+                        <p>The real deployment runs a robust Python-first backend using FastAPI, SQLite database, and
+                            Ethereum Hardhat Solidity smart contract logic.</p>
+                    </div>
+                </div>
+            </header>
+            <section id="panel-portal" class="view-panel active">
+                <div class="glass-card" id="welcome-card">
+                    <h2
+                        style="font-size: 2.2rem; margin-bottom: 12px; background: linear-gradient(135deg, #ffffff 40%, var(--accent-primary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 10px rgba(0, 255, 102, 0.2);">
+                        Liquid-Centric Lending Engine
+                    </h2>
+                    <p class="justify-text"
+                        style="color: var(--text-secondary); line-height: 1.6; margin-bottom: 24px; max-width: 800px;">
+                        We turn concrete properties, gold vaults, and supply-chain invoices into liquid capital. Think
+                        of us as the protocol that lets you borrow against a literal warehouse of premium Colombian
+                        coffee beans, without the hassle. This is an interactive sandbox simulating real-time
+                        tokenization, interest calculations, oracle crashes, and linearly-decaying Dutch auction
+                        liquidations.
+                    </p>
+                    <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                        <button class="btn-primary" onclick="switchView('panel-dashboard')">
+                            Launch Dashboard <i data-lucide="arrow-right"></i>
+                        </button>
+                        <button class="btn-primary"
+                            style="background: linear-gradient(135deg, var(--accent-primary) 0%, #059669 100%); box-shadow: 0 0 15px rgba(0, 255, 102, 0.3);"
+                            onclick="startAutoWalkthrough()">
+                            Run Auto-Simulation Tour <i data-lucide="play-circle"></i>
+                        </button>
+                        <button class="btn-primary"
+                            style="background: rgba(255,255,255,0.03); border:1px solid var(--border-primary); color:white; box-shadow:none;"
+                            onclick="switchView('panel-guide')">
+                            Read Setup Guide <i data-lucide="terminal"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-label">Asset Tokenization</div>
+                        <div class="justify-text"
+                            style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.4; margin-top: 8px;">
+                            Convert physical inventory deeds, real estate valuation trusts, or certified gold bars into
+                            yield-bearing ERC-721 security NFTs.
+                        </div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Python Math Engine</div>
+                        <div class="justify-text"
+                            style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.4; margin-top: 8px;">
+                            High-performance continuous interest calculation and multi-model pricing simulation driving
+                            protocol safety scores.
+                        </div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Dutch Liquidations</div>
+                        <div class="justify-text"
+                            style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.4; margin-top: 8px;">
+                            Autonomous default handling. Collateral assets decay in price linearly to allow public bids
+                            and debt paybacks.
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section id="panel-dashboard" class="view-panel">
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-label">Total Value Locked</div>
+                        <div class="stat-val" id="dashboard-tvl">$3,150,000.00</div>
+                        <div class="stat-delta delta-up"><i data-lucide="trending-up"></i> Live Feed</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Total Borrowed</div>
+                        <div class="stat-val" id="dashboard-debt">$1,450,000.00</div>
+                        <div class="stat-delta delta-up"><i data-lucide="trending-up"></i> Accruing Interest</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Active Auctions</div>
+                        <div class="stat-val" id="dashboard-auctions">0 Live</div>
+                        <div class="stat-delta delta-down" id="dashboard-auctions-delta">● Clear</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Protocol Safety Score</div>
+                        <div class="stat-val" id="dashboard-health">98.5%</div>
+                        <div class="stat-delta delta-up"><i data-lucide="trending-up"></i> System Secure</div>
+                    </div>
+                </div>
+                <div class="glass-card">
+                    <h3>Lending Pool Positions</h3>
+                    <br />
+                    <div class="table-responsive">
+                        <table class="custom-table" id="dashboard-loans-table">
+                            <thead>
+                                <tr>
+                                    <th>Loan ID</th>
+                                    <th>Borrower</th>
+                                    <th>Asset Details</th>
+                                    <th>Principal ($)</th>
+                                    <th>Debt Outstanding ($)</th>
+                                    <th>LTV Ratio</th>
+                                    <th>Health Factor</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="glass-card">
+                    <h3>Protocol Transaction Log</h3>
+                    <div class="ledger-box" id="dashboard-ledger">
+                        <div class="ledger-line">[SYSTEM] Ledger initialized. Both services are starting.</div>
+                    </div>
+                </div>
+            </section>
+            <section id="panel-mint" class="view-panel">
+                <div style="display: grid; grid-template-columns: 3fr 2fr; gap: 30px;">
+                    <div class="glass-card">
+                        <h3>Mint Certified RWA NFT</h3>
+                        <br />
+                        <div class="form-group">
+                            <label>Asset Name</label>
+                            <input type="text" class="form-control" id="mint-name"
+                                placeholder="e.g. London City Trust Gold Reserves">
+                        </div>
+                        <div class="form-group">
+                            <label>Asset Category</label>
+                            <select class="form-control" id="mint-type" onchange="updateMintPreviewImage()">
+                                <option value="real_estate">Monkey Manor</option>
+                                <option value="gold" selected>Golden Banana Vault</option>
+                                <option value="vehicle">Jungle Rides</option>
+                                <option value="invoice">Banana Supply Ledger</option>
+                                <option value="bond">Ape Treasury Bond</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Valuation Appraisal ($)</label>
+                            <input type="number" class="form-control" id="mint-valuation" value="500000" step="10000">
+                        </div>
+                        <div class="form-group">
+                            <label>Physical Storage Location (Be honest, your backyard garage does not count)</label>
+                            <input type="text" class="form-control" id="mint-location"
+                                value="Secured Vault, London, UK">
+                        </div>
+                        <button class="btn-primary" onclick="executeMintRWA()">
+                            Tokenize & Mint NFT <i data-lucide="check-circle"></i>
+                        </button>
+                    </div>
+                    <div class="">
+                        <h3>Preview NFT Card</h3>
+                        <br />
+                        <div class="asset-card" style="text-align: center; border-color: var(--accent-secondary);">
+                            <div
+                                style="height: 180px; width: 100%; overflow: hidden; background-color: var(--bg-tertiary);">
+                                <img id="preview-image"
+                                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQco2MKPMRVzA1eoLLJWeR53I8fFt0wx8zsAJfkC-NYog&s=10"
+                                    alt="NFT Art" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                            <div class="asset-body" style="text-align: left;">
+                                <h4 id="preview-name">London City Trust Gold Reserves</h4>
+                                <div class="asset-meta" id="preview-meta">Type: GOLD | Location: Secured Vault, London,
+                                    UK</div>
+                                <div class="asset-val" id="preview-valuation">$500,000.00</div>
+                                <span class="badge badge-minted" id="preview-status">PENDING</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section id="panel-borrow" class="view-panel">
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px;">
+                    <div class="glass-card">
+                        <h3>Borrow Against Tokenized Collateral</h3>
+                        <br />
+                        <div class="form-group">
+                            <label>Select Collateral NFT</label>
+                            <select class="form-control" id="borrow-asset-select" onchange="updateBorrowLimits()">
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Requested Loan Amount (liqUSD)</label>
+                            <input type="number" class="form-control" id="borrow-principal" value="250000">
+                            <small style="color: var(--accent-secondary);" id="borrow-limit-text">Max LTV limit (75%):
+                                $375,000.00</small>
+                        </div>
+                        <button class="btn-primary" onclick="executeBorrow()">
+                            Initiate Borrow Position <i data-lucide="arrow-right"></i>
+                        </button>
+                    </div>
+                    <div class="glass-card">
+                        <h3>Borrowing Policies</h3>
+                        <br />
+                        <p class="justify-text"
+                            style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5; margin-bottom: 12px;">
+                            - Max Loan-to-Value (LTV): Capped at 75%. Requests above this threshold are rejected
+                            immediately to protect liquidity.
+                        </p>
+                        <p class="justify-text"
+                            style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5; margin-bottom: 12px;">
+                            - Liquidation Threshold: Set at 85%. If the value of your asset drops, or interest accrues
+                            past this threshold, the NFT moves to auto-liquidation.
+                        </p>
+                    </div>
+                </div>
+            </section>
+            <section id="panel-repay" class="view-panel">
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px;">
+                    <div class="glass-card">
+                        <h3>Service Outstanding Balances</h3>
+                        <br />
+                        <div class="form-group">
+                            <label>Select Active Loan Position</label>
+                            <select class="form-control" id="repay-loan-select" onchange="updateRepayDetails()">
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Repayment Amount (liqUSD)</label>
+                            <input type="number" class="form-control" id="repay-amount" value="50000">
+                        </div>
+                        <button class="btn-primary" onclick="executeRepayment()">
+                            Submit Repayment <i data-lucide="check"></i>
+                        </button>
+                    </div>
+                    <div class="glass-card">
+                        <h3>Repayment Status</h3>
+                        <br />
+                        <div style="line-height: 1.8; font-size: 0.95rem;">
+                            <strong>Outstanding Debt:</strong> <span id="repay-outstanding">$0.00</span> <br />
+                            <strong>LTV Ratio:</strong> <span id="repay-ltv">0.00%</span> <br />
+                            <strong>Health Factor:</strong> <span id="repay-health">0.00</span> <br />
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section id="panel-oracle" class="view-panel">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                    <div class="glass-card">
+                        <h3>Oracle Feed Telemetry</h3>
+                        <br />
+                        <div class="table-responsive">
+                            <table class="custom-table" id="oracle-prices-table">
+                                <thead>
+                                    <tr>
+                                        <th>Asset ID</th>
+                                        <th>Asset Name</th>
+                                        <th>Type</th>
+                                        <th>Live Valuation ($)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="glass-card">
+                        <h3>Force Price Override Node</h3>
+                        <br />
+                        <div class="form-group">
+                            <label>Select Target Asset</label>
+                            <select class="form-control" id="oracle-asset-select">
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>New Target Price ($)</label>
+                            <input type="number" class="form-control" id="oracle-override-price" value="300000">
+                        </div>
+                        <button class="btn-primary" onclick="executeOracleOverride()">
+                            Publish Price Override <i data-lucide="upload"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+            <section id="panel-auctions" class="view-panel">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                    <div class="glass-card">
+                        <h3>Active Dutch Auctions</h3>
+                        <br />
+                        <div id="auctions-container-list">
+                            <p style="color: var(--text-muted);">No active liquidations at this time.</p>
+                        </div>
+                    </div>
+                    <div class="glass-card">
+                        <h3>How does this auction work?</h3>
+                        <br />
+                        <p class="justify-text"
+                            style="color: var(--text-secondary); line-height: 1.6; font-size: 0.95rem;">
+                            Basically, we start high because we value our dignity (usually 130% of the asset valuation),
+                            then we drop the price dynamically every second until someone yells 'MINE!' or it matches
+                            the borrower's debt. Think of it as a reverse game of chicken for bargain hunters.
+                        </p>
+                    </div>
+                </div>
+            </section>
+            <section id="panel-borrowers" class="view-panel">
+                <div class="glass-card">
+                    <h3>Borrower Accounts Directory</h3>
+                    <br />
+                    <div class="table-responsive">
+                        <table class="custom-table" id="borrowers-table">
+                            <thead>
+                                <tr>
+                                    <th>Account</th>
+                                    <th>Rating Grade</th>
+                                    <th>Total Borrowed</th>
+                                    <th>Repaid Amount</th>
+                                    <th>Loans</th>
+                                    <th>Credit Rating Score</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+            <section id="panel-faucet" class="view-panel">
+                <div class="glass-card">
+                    <h3>Demo Wallet Capital Faucet</h3>
+                    <br />
+                    <p class="justify-text"
+                        style="color: var(--text-secondary); line-height: 1.6; margin-bottom: 20px;">
+                        Need more capital? Request additional mock stablecoins (liqUSD) to bid on Dutch auctions or pay
+                        back outstanding debts. No credit check required, we promise.
+                    </p>
+                    <div class="form-group">
+                        <label>Amount to Request</label>
+                        <input type="number" class="form-control" id="faucet-amount" value="100000" step="10000">
+                    </div>
+                    <button class="btn-primary" onclick="executeFaucet()">
+                        Mint Mock Capital <i data-lucide="droplet"></i>
+                    </button>
+                </div>
+            </section>
+            <section id="panel-analytics" class="view-panel">
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px;">
+                    <div class="glass-card">
+                        <h3>Historical Protocol Metrics</h3>
+                        <br />
+                        <canvas id="analyticsChart" style="max-height: 350px;"></canvas>
+                    </div>
+                    <div class="glass-card">
+                        <h3>Concentration Metrics</h3>
+                        <br />
+                        <canvas id="concentrationChart" style="max-height: 250px;"></canvas>
+                    </div>
+                </div>
+            </section>
+            <section id="panel-admin" class="view-panel">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                    <div class="glass-card">
+                        <h3>Break things (For science, obviously)</h3>
+                        <br />
+                        <p class="justify-text" style="color: var(--text-secondary); margin-bottom: 20px;">
+                            Force updates on the Oracle pricing engine to trigger stress thresholds.
+                        </p>
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                            <button class="btn-primary"
+                                style="background: var(--danger); box-shadow: 0 0 15px rgba(255, 0, 85, 0.4);"
+                                onclick="triggerCrash()">
+                                Force Market Crash (-40%) <i data-lucide="trending-down"></i>
+                            </button>
+                            <button class="btn-primary"
+                                style="background: var(--accent-tertiary); color: black; box-shadow: 0 0 15px rgba(0, 255, 102, 0.4);"
+                                onclick="triggerRecovery()">
+                                Force Market Recovery <i data-lucide="trending-up"></i>
+                            </button>
+                            <button class="btn-primary"
+                                style="background: var(--warning); box-shadow: 0 0 15px rgba(255, 170, 0, 0.4);"
+                                onclick="triggerRateHike()">
+                                Hike Interest Rates (+3.5%) <i data-lucide="percent"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="glass-card">
+                        <h3>Global Settings Parameter</h3>
+                        <br />
+                        <div class="form-group">
+                            <label>Base Annual Interest Rate (%)</label>
+                            <input type="number" class="form-control" id="admin-rate" value="8.0" step="0.5">
+                        </div>
+                        <button class="btn-primary" onclick="saveAdminSettings()">
+                            Update Configuration <i data-lucide="save"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="panel-guide" class="view-panel">
+                <style>
+                    #panel-guide .step-badge {
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        width: 34px;
+                        height: 34px;
+                        border-radius: 50%;
+                        background: linear-gradient(135deg, #22c55e, #8b5cf6);
+                        color: #fff;
+                        font-weight: 700;
+                        font-size: 0.95rem;
+                        margin-right: 10px;
+                        flex-shrink: 0;
+                    }
+
+                    #panel-guide .step-title-row {
+                        display: flex;
+                        align-items: center;
+                        margin-bottom: 6px;
+                    }
+
+                    #panel-guide .guide-step {
+                        border-left: 3px solid rgba(127, 90, 240, 0.35);
+                        padding-left: 18px;
+                        margin-bottom: 34px;
+                    }
+
+                    #panel-guide .code-block {
+                        background: #1e1e2e;
+                        border-radius: 10px;
+                        padding: 14px 18px;
+                        font-family: "Fira Code", "Courier New", monospace;
+                        font-size: 0.88rem;
+                        line-height: 1.7;
+                        overflow-x: auto;
+                        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+                    }
+
+                    #panel-guide .c-cmd {
+                        color: #89ddff;
+                    }
+
+                    #panel-guide .c-flag {
+                        color: #ffcb6b;
+                    }
+
+                    #panel-guide .c-arg {
+                        color: #c3e88d;
+                    }
+
+                    #panel-guide .c-comment {
+                        color: #7f849c;
+                        font-style: italic;
+                    }
+
+                    #panel-guide .c-path {
+                        color: #f78c6c;
+                    }
+
+                    #panel-guide .tip-box {
+                        background: rgba(44, 182, 125, 0.1);
+                        border: 1px solid rgba(44, 182, 125, 0.3);
+                        border-radius: 8px;
+                        padding: 10px 14px;
+                        font-size: 0.85rem;
+                        color: var(--text-secondary);
+                        margin-top: 12px;
+                    }
+
+                    #panel-guide .warn-box {
+                        background: rgba(255, 100, 100, 0.08);
+                        border: 1px solid rgba(255, 100, 100, 0.3);
+                        border-radius: 8px;
+                        padding: 10px 14px;
+                        font-size: 0.85rem;
+                        color: var(--text-secondary);
+                        margin-top: 12px;
+                    }
+
+                    #panel-guide a {
+                        color: #7f5af0;
+                        text-decoration: none;
+                        border-bottom: 1px dashed rgba(127, 90, 240, 0.5);
+                    }
+
+                    #panel-guide a:hover {
+                        border-bottom-style: solid;
+                    }
+
+                    #panel-guide .icon {
+                        display: inline-block;
+                        vertical-align: -3px;
+                        margin-right: 6px;
+                        width: 16px;
+                        height: 16px;
+                    }
+
+                    #panel-guide h2 .icon {
+                        width: 22px;
+                        height: 22px;
+                        vertical-align: -4px;
+                        margin-right: 10px;
+                    }
+
+                    #panel-guide .icon-purple {
+                        stroke: #7f5af0;
+                    }
+
+                    #panel-guide .icon-green {
+                        stroke: #2cb67d;
+                    }
+
+                    #panel-guide .icon-red {
+                        stroke: #ff6464;
+                    }
+                </style>
+
+                <div class="">
+                    <h2>
+
+                        Real Codebase Step-by-Step Setup Guide
+                    </h2>
+                    <br />
+                    <p class="justify-text"
+                        style="color: var(--text-secondary); line-height: 1.6; margin-bottom: 30px;">
+                        Ready to trade the browser playground for the real heavy machinery? Great choice. Below is a
+                        friendly,
+                        no-nonsense walkthrough that gets Python installed, packages pulled in, the blockchain layer
+                        compiled,
+                        and both servers running locally — with tests to prove nothing broke along the way. Grab a
+                        coffee,
+                        open a terminal, and let's go one step at a time.
+                    </p>
+
+                    <div class="guide-step">
+                        <div class="step-title-row">
+                            <span class="step-badge">1</span>
+                            <h3>Install Python &amp; Node.js</h3>
+                        </div>
+                        <p class="justify-text"
+                            style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5;">
+                            Two tools power everything here. Grab <strong>Python 3.10 or newer</strong> from
+                            <a href="https://www.python.org/downloads/" target="_blank"
+                                rel="noopener">python.org/downloads</a>
+                            — that's the brain of the operation, running our FastAPI backend and calculation engine.
+                            Then grab
+                            <strong>Node.js LTS</strong> from <a href="https://nodejs.org/en/download" target="_blank"
+                                rel="noopener">nodejs.org</a>,
+                            which handles compiling our Ethereum Hardhat smart contracts.
+                        </p>
+                        <div class="warn-box">
+                            <svg class="icon icon-red" viewBox="0 0 24 24" fill="none" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+                                <line x1="12" x2="12" y1="9" y2="13" />
+                                <line x1="12" x2="12.01" y1="17" y2="17" />
+                            </svg>
+                            <strong>Windows users, don't skip this:</strong> during the Python installer, tick the
+                            checkbox
+                            that says <em>"Add Python to PATH."</em> Miss it, and your terminal will act like it's never
+                            heard
+                            of Python the moment you type a command — and we'll both be very sad about it.
+                        </div>
+                        <div class="tip-box">
+                            <i data-lucide="sparkles"
+                                style="color: var(--accent-primary); width: 1.1rem; height: 1.1rem; display: inline-block; vertical-align: middle; margin-right: 4px;"></i>
+                            Verify both installed correctly before moving on:
+                        </div>
+                        <div class="code-block">
+                            <span class="c-cmd">python</span> <span class="c-flag">--version</span><br />
+                            <span class="c-cmd">node</span> <span class="c-flag">--version</span>
+                        </div>
+                    </div>
+
+                    <div class="guide-step">
+                        <div class="step-title-row">
+                            <span class="step-badge">2</span>
+                            <h3>Install Python Libraries</h3>
+                        </div>
+                        <p class="justify-text"
+                            style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5;">
+                            Next, we feed the backend its toolkit — <strong>FastAPI</strong> to serve APIs at speed,
+                            <strong>SQLAlchemy</strong> to talk to the database, <strong>Streamlit</strong> to power the
+                            frontend panels, plus a handful of supporting libraries. It's best practice to do this
+                            inside a
+                            virtual environment so nothing clashes with packages elsewhere on your machine:
+                        </p>
+                        <div class="code-block">
+                            <span class="c-comment"># create and activate a virtual environment
+                                (recommended)</span><br />
+                            <span class="c-cmd">python</span> -m venv venv<br />
+                            <span class="c-cmd">source</span> venv/bin/activate <span class="c-comment">//
+                                macOS/Linux</span><br />
+                            venv<span class="c-path">\Scripts\activate</span> <span class="c-comment">//
+                                Windows</span><br /><br />
+                            <span class="c-comment"># install everything from the project root</span><br />
+                            <span class="c-cmd">pip</span> <span class="c-flag">install</span> <span
+                                class="c-flag">-r</span> <span class="c-arg">requirements.txt</span>
+                        </div>
+                        <div class="tip-box">
+                            <i data-lucide="sparkles"
+                                style="color: var(--accent-primary); width: 1.1rem; height: 1.1rem; display: inline-block; vertical-align: middle; margin-right: 4px;"></i>
+                            If your terminal throws a wall of compiler errors, double-check that the venv is actually
+                            activated (you should see <code>(venv)</code> at the start of your prompt) before re-running
+                            the
+                            install. That alone fixes 90% of "it worked on my machine" issues.
+                        </div>
+                    </div>
+
+                    <div class="guide-step">
+                        <div class="step-title-row">
+                            <span class="step-badge">3</span>
+                            <h3>Setup Solidity Contracts</h3>
+                        </div>
+                        <p class="justify-text"
+                            style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5;">
+                            Time to compile the blockchain layer. We use <a href="https://hardhat.org/" target="_blank"
+                                rel="noopener">Hardhat</a>
+                            to spin up a local Ethereum network simulation, and we lean on
+                            <a href="https://www.openzeppelin.com/contracts" target="_blank"
+                                rel="noopener">OpenZeppelin</a>
+                            for battle-tested, audited security standards rather than reinventing token logic from
+                            scratch.
+                            Hop into the contracts folder and pull in the JavaScript packages:
+                        </p>
+                        <div class="code-block">
+                            <span class="c-cmd">cd</span> <span class="c-path">contracts</span><br />
+                            <span class="c-cmd">npm</span> <span class="c-flag">install</span><br />
+                            <span class="c-cmd">cd</span> <span class="c-path">..</span>
+                        </div>
+                        <div class="tip-box">
+                            <i data-lucide="sparkles"
+                                style="color: var(--accent-primary); width: 1.1rem; height: 1.1rem; display: inline-block; vertical-align: middle; margin-right: 4px;"></i>
+                            Want to double-check the contracts compile cleanly before moving on? Run
+                            <code>npx hardhat compile</code> from inside the <code>contracts</code> folder — a clean run
+                            means
+                            you're good to go.
+                        </div>
+                    </div>
+
+                    <div class="guide-step">
+                        <div class="step-title-row">
+                            <span class="step-badge">4</span>
+                            <h3>Launch the Servers</h3>
+                        </div>
+                        <p class="justify-text"
+                            style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5;">
+                            Nobody wants to juggle 15 terminal tabs, so we didn't make you. A custom Python orchestrator
+                            script
+                            (<code>launch.py</code>) quietly handles the SQLite database migrations, seeds all the
+                            sample asset
+                            portfolios, compiles the Solidity files, and boots both the FastAPI backend and the
+                            Streamlit UI in
+                            parallel. One command, and everything comes alive:
+                        </p>
+                        <div class="code-block">
+                            <span class="c-cmd">python</span> <span class="c-arg">launch.py</span>
+                        </div>
+                        <div class="tip-box">
+                            <i data-lucide="sparkles"
+                                style="color: var(--accent-primary); width: 1.1rem; height: 1.1rem; display: inline-block; vertical-align: middle; margin-right: 4px;"></i>
+                            Once your console shows both services reporting "online," open your browser to
+                            <a href="http://127.0.0.1:8501" target="_blank"
+                                rel="noopener"><strong>http://127.0.0.1:8501</strong></a>
+                            to explore the institutional-grade Streamlit portal in person.
+                        </div>
+                    </div>
+
+                    <div class="guide-step">
+                        <div class="step-title-row">
+                            <span class="step-badge">5</span>
+                            <h3>Run Code Tests</h3>
+                        </div>
+                        <p class="justify-text"
+                            style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5;">
+                            Before you trust any of the numbers on screen, let's make sure the math and the contracts
+                            actually
+                            hold up. Two quick test suites cover both sides of the stack — the Python calculation engine
+                            and
+                            the Solidity contract logic:
+                        </p>
+                        <div class="code-block">
+                            <span class="c-comment"># run Python calculation verification tests</span><br />
+                            <span class="c-cmd">pytest</span> <span class="c-arg">tests/</span> <span
+                                class="c-flag">-v</span><br /><br />
+                            <span class="c-comment"># run Solidity smart contract assertions</span><br />
+                            <span class="c-cmd">cd</span> <span class="c-path">contracts</span><br />
+                            <span class="c-cmd">npx</span> <span class="c-arg">hardhat</span> <span
+                                class="c-flag">test</span>
+                        </div>
+                        <p class="justify-text"
+                            style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 10px;">
+                            All green ticks?
+                            Congratulations — you're officially running a real, tested decentralized
+                            finance builder locally. If anything comes back red, re-read the error message closely; it
+                            almost
+                            always points straight at the missing dependency or misconfigured path.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+    <script>
+        const canvas = document.getElementById('matrix-bg');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        const chars = '01LIQUID'.split('');
+        const fontSize = 14;
+        let columns = canvas.width / fontSize;
+        const drops = [];
+        for (let x = 0; x < columns; x++) {
+            drops[x] = 1;
+        }
+
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#00ff66';
+            ctx.font = fontSize + 'px monospace';
+
+            for (let i = 0; i < drops.length; i++) {
+                const text = chars[Math.floor(Math.random() * chars.length)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+        setInterval(drawMatrix, 33);
+
+        const simState = {
+            tvl: 3150000,
+            debt: 1450000,
+            fees: 15200,
+            safetyScore: 98.5,
+            interestRate: 0.08,
+            capitalBalance: 500000,
+            assets: [
+                { id: 1, token_id: 1001, name: "Midtown Manhattan Commercial Deed", asset_type: "real_estate", current_value: 1200000, valuation: 1200000, location: "New York, NY", serial_number: "RE-NY-092", status: "collateralized", is_locked: true },
+                { id: 2, token_id: 1002, name: "LBMA Certified Swiss Gold (5kg)", asset_type: "gold", current_value: 350000, valuation: 350000, location: "Zurich, CH", serial_number: "AU-ZH-991", status: "collateralized", is_locked: true },
+                { id: 3, token_id: 1003, name: "London Bond yield Portfolio", asset_type: "bond", current_value: 1600000, valuation: 1600000, location: "London, UK", serial_number: "BD-LDN-881", status: "collateralized", is_locked: true }
+            ],
+            loans: [
+                { id: 1, borrower: "Meridian Holdings", asset_id: 1, principal: 600000, total_debt: 600000, health_factor: 1.7, ltv_ratio: 0.5, status: "active" },
+                { id: 2, borrower: "Alpha Capital", asset_id: 2, principal: 150000, total_debt: 150000, health_factor: 1.98, ltv_ratio: 0.42, status: "active" },
+                { id: 3, borrower: "Vanguard LLC", asset_id: 3, principal: 700000, total_debt: 700000, health_factor: 1.94, ltv_ratio: 0.43, status: "active" }
+            ],
+            borrowers: [
+                { id: 1, name: "Meridian Holdings", credit_score: 780, rating: "AAA", total_borrowed: 600000, total_repaid: 20000, loans_count: 1 },
+                { id: 2, name: "Alpha Capital", credit_score: 740, rating: "AA", total_borrowed: 150000, total_repaid: 0, loans_count: 1 },
+                { id: 3, name: "Vanguard LLC", credit_score: 720, rating: "A", total_borrowed: 700000, total_repaid: 50000, loans_count: 1 }
+            ],
+            auctions: [],
+            tickCount: 0,
+            priceHistory: {
+                labels: [],
+                tvl: [],
+                debt: []
+            }
+        };
+        function addLog(message) {
+            const ledger = document.getElementById('dashboard-ledger');
+            if (!ledger) return;
+            const div = document.createElement('div');
+            div.className = "ledger-line";
+            div.innerText = `[${new Date().toLocaleTimeString()}] ${message}`;
+            ledger.appendChild(div);
+            ledger.scrollTop = ledger.scrollHeight;
+        }
+        function switchView(panelId) {
+            document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+            document.getElementById(panelId).classList.add('active');
+            const items = document.querySelectorAll('.menu-item');
+            items.forEach(item => {
+                if (item.getAttribute('onclick').includes(panelId)) {
+                    item.classList.add('active');
+                }
+            });
+            let headerTitle = "Welcome Portal";
+            if (panelId === 'panel-dashboard') headerTitle = "Telemetry Dashboard";
+            else if (panelId === 'panel-mint') headerTitle = "Real World Asset Tokenization";
+            else if (panelId === 'panel-borrow') headerTitle = "Open Borrow Positions";
+            else if (panelId === 'panel-repay') headerTitle = "Repayment Settlement";
+            else if (panelId === 'panel-oracle') headerTitle = "Oracle Feed";
+            else if (panelId === 'panel-auctions') headerTitle = "Dutch Liquidation Auctions";
+            else if (panelId === 'panel-borrowers') headerTitle = "Borrower Accounts Directory";
+            else if (panelId === 'panel-faucet') headerTitle = "Demo Capital Faucet";
+            else if (panelId === 'panel-analytics') headerTitle = "Protocol Analytics";
+            else if (panelId === 'panel-admin') headerTitle = "Administrative parameters";
+            else if (panelId === 'panel-guide') headerTitle = "System Setup Manual";
+            document.getElementById('nav-header-title').innerText = headerTitle;
+            if (panelId === 'panel-dashboard') {
+                renderDashboardTable();
+            } else if (panelId === 'panel-borrow') {
+                renderBorrowOptions();
+            } else if (panelId === 'panel-repay') {
+                renderRepayOptions();
+            } else if (panelId === 'panel-oracle') {
+                renderOracleFeeds();
+            } else if (panelId === 'panel-auctions') {
+                renderAuctions();
+            } else if (panelId === 'panel-borrowers') {
+                renderBorrowers();
+            }
+            lucide.createIcons();
+        }
+        window.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            gsap.from("#welcome-card", {
+                duration: 1,
+                y: 40,
+                opacity: 0,
+                ease: "power3.out"
+            });
+            gsap.from(".stat-box", {
+                duration: 1,
+                y: 30,
+                opacity: 0,
+                stagger: 0.2,
+                delay: 0.3,
+                ease: "power3.out"
+            });
+            initCharts();
+            setInterval(simulationTick, 1000);
+        });
+        function simulationTick() {
+            simState.tickCount++;
+            simState.loans.forEach(loan => {
+                if (loan.status === 'active') {
+                    const tickAccrual = loan.total_debt * (simState.interestRate / (365 * 24 * 3600)) * 10000;
+                    loan.total_debt += tickAccrual;
+                    const asset = simState.assets.find(a => a.id === loan.asset_id);
+                    if (asset) {
+                        loan.ltv_ratio = loan.total_debt / asset.current_value;
+                        loan.health_factor = (asset.current_value * 0.85) / loan.total_debt;
+                    }
+                    if (loan.health_factor < 1.0) {
+                        triggerLiquidation(loan);
+                    }
+                }
+            });
+            simState.assets.forEach(asset => {
+                if (asset.status !== 'sold' && asset.status !== 'burned') {
+                    const change = (Math.random() - 0.5) * 0.005;
+                    asset.current_value = asset.current_value * (1 + change);
+                }
+            });
+            simState.auctions.forEach(auc => {
+                if (auc.status === 'active') {
+                    auc.elapsed_ticks += 2;
+                    const decayAmount = ((auc.start_price - auc.reserve_price) / auc.duration_ticks) * auc.elapsed_ticks;
+                    auc.current_price = Math.max(auc.start_price - decayAmount, auc.reserve_price);
+                    if (auc.elapsed_ticks >= auc.duration_ticks) {
+                        auc.status = 'expired';
+                        const loan = simState.loans.find(l => l.id === auc.loan_id);
+                        if (loan) loan.status = 'defaulted';
+                    }
+                }
+            });
+            let activeTVL = 0;
+            let activeDebt = 0;
+            simState.loans.forEach(l => {
+                if (l.status === 'active') {
+                    activeDebt += l.total_debt;
+                    const asset = simState.assets.find(a => a.id === l.asset_id);
+                    if (asset) activeTVL += asset.current_value;
+                }
+            });
+            simState.tvl = activeTVL;
+            simState.debt = activeDebt;
+            if (simState.tickCount % 5 === 0) {
+                simState.priceHistory.labels.push(new Date().toLocaleTimeString());
+                simState.priceHistory.tvl.push(simState.tvl);
+                simState.priceHistory.debt.push(simState.debt);
+                if (simState.priceHistory.labels.length > 20) {
+                    simState.priceHistory.labels.shift();
+                    simState.priceHistory.tvl.shift();
+                    simState.priceHistory.debt.shift();
+                }
+                updateChartData();
+            }
+            refreshDOMTelemetry();
+        }
+        function refreshDOMTelemetry() {
+            const tvlEl = document.getElementById('dashboard-tvl');
+            const debtEl = document.getElementById('dashboard-debt');
+            const aucEl = document.getElementById('dashboard-auctions');
+            const scoreEl = document.getElementById('dashboard-health');
+            if (tvlEl) tvlEl.innerText = `$${simState.tvl.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            if (debtEl) debtEl.innerText = `$${simState.debt.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            const activeAucs = simState.auctions.filter(a => a.status === 'active').length;
+            if (aucEl) aucEl.innerText = `${activeAucs} Live`;
+            const aucDelta = document.getElementById('dashboard-auctions-delta');
+            if (aucDelta) {
+                if (activeAucs > 0) {
+                    aucDelta.className = "stat-delta delta-down";
+                    aucDelta.innerText = "Warning Zone";
+                } else {
+                    aucDelta.className = "stat-delta delta-up";
+                    aucDelta.innerText = "System Clear";
+                }
+            }
+            if (document.getElementById('panel-dashboard').classList.contains('active')) {
+                renderDashboardTable();
+            }
+            if (document.getElementById('panel-oracle').classList.contains('active')) {
+                renderOracleFeeds();
+            }
+            if (document.getElementById('panel-auctions').classList.contains('active')) {
+                renderAuctions();
+            }
+        }
+        function renderDashboardTable() {
+            const tbody = document.querySelector('#dashboard-loans-table tbody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            simState.loans.forEach(l => {
+                const asset = simState.assets.find(a => a.id === l.asset_id);
+                const tr = document.createElement('tr');
+                const badgeClass = l.status === 'active' ? 'badge-active' : l.status === 'in_auction' ? 'badge-auction' : 'badge-liquidated';
+                tr.innerHTML = `
+                <td>#00${l.id}</td>
+                <td>${l.borrower}</td>
+                <td>${asset ? asset.name : 'Unknown Asset'}</td>
+                <td>$${l.principal.toLocaleString()}</td>
+                <td>$${l.total_debt.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+                <td>${(l.ltv_ratio * 100).toFixed(2)}%</td>
+                <td style="color: ${l.health_factor >= 1.2 ? 'var(--accent-primary)' : 'var(--danger)'}; font-weight: bold;">
+                    ${l.health_factor === Infinity ? '999.00' : l.health_factor.toFixed(2)}
+                </td>
+                <td><span class="badge ${badgeClass}">${l.status}</span></td>
+            `;
+                tbody.appendChild(tr);
+            });
+        }
+        const nftImages = {
+            real_estate: "https://images.wsj.net/im-491399?width=700&height=700",
+            gold: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQco2MKPMRVzA1eoLLJWeR53I8fFt0wx8zsAJfkC-NYog&s=10",
+            vehicle: "https://i.guim.co.uk/img/media/ef8492feb3715ed4de705727d9f513c168a8b196/37_0_1125_675/master/1125.jpg?width=1200&height=1200&quality=85&auto=format&fit=crop&s=d456a2af571d980d8b2985472c262b31",
+            invoice: "https://miro.medium.com/1*re9vYkB-Ti0xZfgQlJP2XQ.png",
+            bond: "https://miro.medium.com/1*re9vYkB-Ti0xZfgQlJP2XQ.png"
+        };
+        function updateMintPreviewImage() {
+            const type = document.getElementById('mint-type').value;
+            const imgEl = document.getElementById('preview-image');
+            if (imgEl && nftImages[type]) {
+                imgEl.src = nftImages[type];
+            }
+        }
+        function executeMintRWA() {
+            const name = document.getElementById('mint-name').value;
+            const type = document.getElementById('mint-type').value;
+            const val = parseFloat(document.getElementById('mint-valuation').value);
+            const loc = document.getElementById('mint-location').value;
+            if (!name) {
+                alert('Please specify a valid asset name.');
+                return;
+            }
+            const id = simState.assets.length + 1;
+            const token_id = 1000 + id;
+            const newAsset = {
+                id: id,
+                token_id: token_id,
+                name: name,
+                asset_type: type,
+                valuation: val,
+                current_value: val,
+                location: loc,
+                serial_number: `SIM-SN-${Math.floor(Math.random() * 900000 + 100000)}`,
+                status: "minted",
+                is_locked: false
+            };
+            simState.assets.push(newAsset);
+            document.getElementById('preview-name').innerText = name;
+            document.getElementById('preview-meta').innerText = `Type: ${type.toUpperCase()} | Location: ${loc}`;
+            document.getElementById('preview-valuation').innerText = `$${val.toLocaleString()}`;
+            document.getElementById('preview-status').innerText = "MINTED";
+            document.getElementById('preview-status').className = "badge badge-minted";
+            addLog(`Tokenized asset NFT #${token_id} minted successfully.`);
+        }
+        function renderBorrowOptions() {
+            const select = document.getElementById('borrow-asset-select');
+            if (!select) return;
+            select.innerHTML = '';
+            const available = simState.assets.filter(a => a.status === 'minted' && !a.is_locked);
+            if (available.length === 0) {
+                const opt = document.createElement('option');
+                opt.innerText = "No available minted NFTs. Go to Mint NFT page first.";
+                select.appendChild(opt);
+                return;
+            }
+            available.forEach(a => {
+                const opt = document.createElement('option');
+                opt.value = a.id;
+                opt.innerText = `NFT #${a.token_id} - ${a.name} ($${a.current_value.toLocaleString()})`;
+                select.appendChild(opt);
+            });
+            updateBorrowLimits();
+        }
+        function updateBorrowLimits() {
+            const select = document.getElementById('borrow-asset-select');
+            if (!select || !select.value) return;
+            const asset = simState.assets.find(a => a.id === parseInt(select.value));
+            if (asset) {
+                const maxLTV = asset.current_value * 0.75;
+                document.getElementById('borrow-limit-text').innerText = `Max LTV limit (75%): $${maxLTV.toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+                document.getElementById('borrow-principal').value = maxLTV * 0.6;
+            }
+        }
+        function executeBorrow() {
+            const select = document.getElementById('borrow-asset-select');
+            if (!select || !select.value) return;
+            const asset = simState.assets.find(a => a.id === parseInt(select.value));
+            const amount = parseFloat(document.getElementById('borrow-principal').value);
+            if (!asset || isNaN(amount) || amount <= 0) return;
+            if (amount > asset.current_value * 0.75) {
+                alert("Rejected: Loan exceeds maximum LTV threshold of 75%.");
+                return;
+            }
+            const id = simState.loans.length + 1;
+            const newLoan = {
+                id: id,
+                borrower: "Demo Wallet Owner",
+                asset_id: asset.id,
+                principal: amount,
+                total_debt: amount,
+                health_factor: (asset.current_value * 0.85) / amount,
+                ltv_ratio: amount / asset.current_value,
+                status: "active"
+            };
+            asset.status = "collateralized";
+            asset.is_locked = true;
+            simState.loans.push(newLoan);
+            addLog(`Loan #${id} established borrowing ${amount.toLocaleString()} liqUSD.`);
+            switchView('panel-dashboard');
+        }
+        function renderRepayOptions() {
+            const select = document.getElementById('repay-loan-select');
+            if (!select) return;
+            select.innerHTML = '';
+            const active = simState.loans.filter(l => l.status === 'active');
+            if (active.length === 0) {
+                const opt = document.createElement('option');
+                opt.innerText = "No active loan positions to repay.";
+                select.appendChild(opt);
+                return;
+            }
+            active.forEach(l => {
+                const asset = simState.assets.find(a => a.id === l.asset_id);
+                const opt = document.createElement('option');
+                opt.value = l.id;
+                opt.innerText = `Loan #${l.id} - Collateral: ${asset ? asset.name : 'RWA'} (Debt: $${l.total_debt.toLocaleString(undefined, { maximumFractionDigits: 2 })})`;
+                select.appendChild(opt);
+            });
+            updateRepayDetails();
+        }
+        function updateRepayDetails() {
+            const select = document.getElementById('repay-loan-select');
+            if (!select || !select.value) return;
+            const loan = simState.loans.find(l => l.id === parseInt(select.value));
+            if (loan) {
+                document.getElementById('repay-outstanding').innerText = `$${loan.total_debt.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                document.getElementById('repay-ltv').innerText = `${(loan.ltv_ratio * 100).toFixed(2)}%`;
+                document.getElementById('repay-health').innerText = loan.health_factor.toFixed(2);
+                document.getElementById('repay-amount').value = loan.total_debt;
+            }
+        }
+        function executeRepayment() {
+            const select = document.getElementById('repay-loan-select');
+            if (!select || !select.value) return;
+            const loan = simState.loans.find(l => l.id === parseInt(select.value));
+            const payVal = parseFloat(document.getElementById('repay-amount').value);
+            if (!loan || isNaN(payVal) || payVal <= 0) return;
+            const repayment = Math.min(payVal, loan.total_debt);
+            loan.total_debt -= repayment;
+            const asset = simState.assets.find(a => a.id === loan.asset_id);
+            if (loan.total_debt <= 0.05) {
+                loan.status = "repaid";
+                loan.total_debt = 0;
+                if (asset) {
+                    asset.status = "minted";
+                    asset.is_locked = false;
+                }
+                addLog(`Loan #${loan.id} fully repaid. Collateral NFT unlocked.`);
+            } else {
+                if (asset) {
+                    loan.ltv_ratio = loan.total_debt / asset.current_value;
+                    loan.health_factor = (asset.current_value * 0.85) / loan.total_debt;
+                }
+                addLog(`Loan #${loan.id} partially repaid by ${repayment.toLocaleString()} liqUSD.`);
+            }
+            switchView('panel-dashboard');
+        }
+        function renderOracleFeeds() {
+            const tbody = document.querySelector('#oracle-prices-table tbody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            simState.assets.forEach(a => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                <td>#00${a.id}</td>
+                <td>${a.name}</td>
+                <td>${a.asset_type.toUpperCase()}</td>
+                <td style="color: var(--accent-secondary); font-weight: bold;">$${a.current_value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+            `;
+                tbody.appendChild(tr);
+            });
+            const select = document.getElementById('oracle-asset-select');
+            if (!select) return;
+            select.innerHTML = '';
+            simState.assets.forEach(a => {
+                const opt = document.createElement('option');
+                opt.value = a.id;
+                opt.innerText = a.name;
+                select.appendChild(opt);
+            });
+        }
+        function executeOracleOverride() {
+            const select = document.getElementById('oracle-asset-select');
+            if (!select || !select.value) return;
+            const asset = simState.assets.find(a => a.id === parseInt(select.value));
+            const price = parseFloat(document.getElementById('oracle-override-price').value);
+            if (!asset || isNaN(price) || price <= 0) return;
+            asset.current_value = price;
+            addLog(`Oracle update: Asset #${asset.id} overridden to $${price.toLocaleString()}.`);
+            renderOracleFeeds();
+        }
+        function triggerLiquidation(loan) {
+            loan.status = "in_auction";
+            const asset = simState.assets.find(a => a.id === loan.asset_id);
+            if (asset) asset.status = "in_auction";
+            const startPrice = asset.current_value * 1.3;
+            const reservePrice = loan.total_debt;
+            const aucId = simState.auctions.length + 1;
+            const newAuction = {
+                auction_id: aucId,
+                loan_id: loan.id,
+                asset_id: loan.asset_id,
+                start_price: startPrice,
+                current_price: startPrice,
+                reserve_price: reservePrice,
+                elapsed_ticks: 0,
+                duration_ticks: 360,
+                status: "active"
+            };
+            simState.auctions.push(newAuction);
+            addLog(`HEALTH ALERT: Loan #${loan.id} breached safety. Dutch liquidation auction #${aucId} triggered.`);
+        }
+        function renderAuctions() {
+            const container = document.getElementById('auctions-container-list');
+            if (!container) return;
+            container.innerHTML = '';
+            const active = simState.auctions.filter(a => a.status === 'active');
+            if (active.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-muted);">No active liquidations at this time.</p>';
+                return;
+            }
+            active.forEach(auc => {
+                const asset = simState.assets.find(a => a.id === auc.asset_id);
+                const progress = (auc.elapsed_ticks / auc.duration_ticks) * 100;
+                const div = document.createElement('div');
+                div.className = "glass-card";
+                div.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;">
+                    <h4 style="margin:0;">${asset ? asset.name : 'Collateral NFT'}</h4>
+                    <span class="badge badge-auction">Auction Active</span>
+                </div>
+                <div style="font-size: 0.9rem; line-height: 1.6; margin-bottom: 16px;">
+                    <strong>Starting Price:</strong> $${auc.start_price.toLocaleString()} <br/>
+                    <strong style="color: var(--danger);">Decayed Spot Price:</strong> $${auc.current_price.toLocaleString(undefined, { maximumFractionDigits: 2 })} <br/>
+                    <strong>Debt Reserve Limit:</strong> $${auc.reserve_price.toLocaleString()} <br/>
+                </div>
+                <div class="auction-progress-container">
+                    <div class="auction-progress-bar" style="width: ${100 - progress}%;"></div>
+                </div>
+                <button class="btn-primary" style="width:100%; margin-top:10px;" onclick="bidAuction(${auc.auction_id})">
+                    Acquire Asset at Spot Price <i data-lucide="gavel"></i>
+                </button>
+            `;
+                container.appendChild(div);
+            });
+        }
+        function bidAuction(aucId) {
+            const auc = simState.auctions.find(a => a.auction_id === aucId);
+            if (!auc || auc.status !== 'active') return;
+            auc.status = "sold";
+            const loan = simState.loans.find(l => l.id === auc.loan_id);
+            if (loan) loan.status = "liquidated";
+            const asset = simState.assets.find(a => a.id === auc.asset_id);
+            if (asset) {
+                asset.status = "minted";
+                asset.is_locked = false;
+                asset.owner_address = "0x3C44Cd3B2a14643306b028E9c3C16c1B97529339";
+            }
+            addLog(`Liquidation purchased: Auction #${aucId} bought at spot $${auc.current_price.toLocaleString(undefined, { maximumFractionDigits: 2 })}.`);
+            switchView('panel-dashboard');
+        }
+        function renderBorrowers() {
+            const tbody = document.querySelector('#borrowers-table tbody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            simState.borrowers.forEach(b => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                <td>${b.name}</td>
+                <td><span class="badge badge-active">${b.rating}</span></td>
+                <td>$${b.total_borrowed.toLocaleString()}</td>
+                <td>$${b.total_repaid.toLocaleString()}</td>
+                <td>${b.loans_count} Active</td>
+                <td style="font-weight: bold; color: var(--accent-secondary);">${b.credit_score}</td>
+            `;
+                tbody.appendChild(tr);
+            });
+        }
+        function executeFaucet() {
+            const amount = parseFloat(document.getElementById('faucet-amount').value);
+            if (isNaN(amount) || amount <= 0) return;
+            simState.capitalBalance += amount;
+            addLog(`Faucet request: Minted mock balance of ${amount.toLocaleString()} liqUSD.`);
+            alert(`Successfully minted ${amount.toLocaleString()} liqUSD to your account.`);
+        }
+        function startAutoWalkthrough() {
+            const overlay = document.getElementById('walkthrough-overlay');
+            const text = document.getElementById('walkthrough-text');
+            overlay.style.display = 'flex';
+            text.innerText = "Step 1/5: Minting 'Starship Propulsion Lab Prototype' NFT...";
+            switchView('panel-mint');
+            setTimeout(() => {
+                document.getElementById('mint-name').value = "Starship Propulsion Lab Prototype";
+                document.getElementById('mint-valuation').value = 1000000;
+                document.getElementById('mint-location').value = "Spaceport Boca Chica, TX";
+                executeMintRWA();
+                text.innerText = "Step 2/5: Locking NFT & Borrowing 700k liqUSD credit...";
+                switchView('panel-borrow');
+                setTimeout(() => {
+                    const select = document.getElementById('borrow-asset-select');
+                    select.value = simState.assets[simState.assets.length - 1].id;
+                    document.getElementById('borrow-principal').value = 700000;
+                    executeBorrow();
+                    text.innerText = "Step 3/5: System shock! Forcing a -40% crash on valuation...";
+                    setTimeout(() => {
+                        triggerCrash();
+                        text.innerText = "Step 4/5: Health factor breached 1.0! Auto-initiating Dutch Auction...";
+                        switchView('panel-auctions');
+                        setTimeout(() => {
+                            text.innerText = "Step 5/5: Decaying price. Auction successfully bought by liquidator!";
+                            const activeAucs = simState.auctions.filter(a => a.status === 'active');
+                            if (activeAucs.length > 0) {
+                                bidAuction(activeAucs[activeAucs.length - 1].auction_id);
+                            }
+                            setTimeout(() => {
+                                overlay.style.display = 'none';
+                                alert("Auto-Simulation tour complete! You just witnessed an automated tokenization-to-liquidation lifecycle.");
+                            }, 2000);
+                        }, 3000);
+                    }, 3000);
+                }, 3000);
+            }, 2000);
+        }
+        function triggerCrash() {
+            simState.assets.forEach(a => {
+                a.current_value = a.current_value * 0.60;
+            });
+            addLog("SYSTEM ALERT: Oracle Feed Market Shock (-40%) triggered.");
+            refreshDOMTelemetry();
+        }
+        function triggerRecovery() {
+            simState.assets.forEach(a => {
+                a.current_value = a.valuation;
+            });
+            addLog("SYSTEM INFO: Market Recovery scenario aligned.");
+            refreshDOMTelemetry();
+        }
+        function triggerRateHike() {
+            simState.interestRate += 0.035;
+            addLog(`ADMIN EVENT: Base rate hiked to ${(simState.interestRate * 100).toFixed(2)}%.`);
+        }
+        function saveAdminSettings() {
+            const val = parseFloat(document.getElementById('admin-rate').value);
+            if (isNaN(val)) return;
+            simState.interestRate = val / 100;
+            addLog(`ADMIN CONFIG: Global parameter rate set to ${val}%.`);
+        }
+        let lineChart = null;
+        let pieChart = null;
+        function initCharts() {
+            const ctxL = document.getElementById('analyticsChart');
+            if (ctxL) {
+                lineChart = new Chart(ctxL, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [
+                            { label: 'Value Locked (TVL)', data: [], borderColor: '#00f0ff', tension: 0.3, fill: false },
+                            { label: 'Active Debt Issued', data: [], borderColor: '#00ff66', tension: 0.3, fill: false }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { labels: { color: '#94a3b8' } } },
+                        scales: {
+                            x: { grid: { color: 'rgba(255,255,255,0.02)' }, ticks: { color: '#94a3b8' } },
+                            y: { grid: { color: 'rgba(255,255,255,0.02)' }, ticks: { color: '#94a3b8' } }
+                        }
+                    }
+                });
+            }
+            const ctxP = document.getElementById('concentrationChart');
+            if (ctxP) {
+                pieChart = new Chart(ctxP, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Real Estate', 'Gold', 'Bonds'],
+                        datasets: [{
+                            data: [1200000, 350000, 1600000],
+                            backgroundColor: ['#00ff66', '#00f0ff', '#ff007f']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8' } } }
+                    }
+                });
+            }
+        }
+        function updateChartData() {
+            if (!lineChart) return;
+            lineChart.data.labels = simState.priceHistory.labels;
+            lineChart.data.datasets[0].data = simState.priceHistory.tvl;
+            lineChart.data.datasets[1].data = simState.priceHistory.debt;
+            lineChart.update();
+        }
+    </script>
+</body>
+
+</html>
