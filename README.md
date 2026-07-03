@@ -10,11 +10,7 @@ Welcome to <b>liqUID.com</b>, the <b>LCL Protocol (Liquid Centric Lending Protoc
 <br>
 
 <div align="justify">
-Historically, physical assets like real estate, rare art, or vintage luxury goods have been notoriously illiquid. If you need cash, you usually have to sell them (which takes months) or negotiate a bank loan (which takes even longer).
-</div>
-
-<div align="justify">
-liqUID.com changes that. We let you tokenize physical assets into ERC-721 NFTs, lock them into our secure Collateral Vault, and mint our algorithmic stablecoin, LiqUSD, against their value. If your collateral value drops below the safety threshold, the protocol automatically triggers a Dutch Auction to liquidate the asset. High-stakes finance, automated safety rails, zero bank visits.
+Historically, physical assets like real estate, rare art, or vintage luxury goods have been notoriously illiquid. If you need cash, you usually have to sell them (which takes months) or negotiate a bank loan (which takes even longer). liqUID.com changes that. We let you tokenize physical assets into ERC-721 NFTs, lock them into our secure Collateral Vault, and mint our algorithmic stablecoin, LiqUSD, against their value. If your collateral value drops below the safety threshold, the protocol automatically triggers a Dutch Auction to liquidate the asset. High-stakes finance, automated safety rails, zero bank visits.
 </div>
 
 ---
